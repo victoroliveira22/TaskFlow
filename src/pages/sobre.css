@@ -1,0 +1,18 @@
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 16px;
+}
+
+.titulo {
+  color: #ffffff;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.descricao {
+  color: #94a3b8;
+  font-size: 1rem;
+  line-height: 1.6;
+}

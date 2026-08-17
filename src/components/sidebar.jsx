@@ -1,0 +1,51 @@
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import styles from "./Sidebar.module.css";
+
+function Sidebar() {
+  const { logado, logout } = useAuth();
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    logout();
+    navigate('/login')
+  }
+
+  const linkClass = ({ isActive }) =>
+    isActive ? `${styles.link} ${styles.ativo}` : styles.link;
+
+  return (
+    <aside className={styles.sidebar}>
+      <div className={styles.logo}>
+        <h1>TaskFlow</h1>
+      </div>
+
+      <nav className={styles.nav}>
+        
+          {!logado && (
+          <NavLink to="/login" className={linkClass}>
+            Login
+          </NavLink>
+          )}
+        
+
+        {logado && (
+          <NavLink to="/" className={linkClass}>
+            Dashboard
+          </NavLink>
+        )}
+
+        <NavLink to="/sobre" className={linkClass}>
+          Sobre
+        </NavLink>
+      </nav>
+
+      {logado && (
+        <button className={styles.btnLogout} onClick={handleLogout}>
+          Sair
+        </button>
+      )}
+    </aside>
+  );
+} 
+
+export default Sidebar;

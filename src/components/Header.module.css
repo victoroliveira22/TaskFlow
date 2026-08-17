@@ -1,0 +1,95 @@
+.header {
+  background-color: #1B2A3B;
+  border-bottom: 1px solid #1E3A5F;
+  padding: 20px 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+.logo h1 {
+  color: #23f52e;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.logo p {
+  color: #94A3B8;
+  font-size: 0.85rem;
+}
+
+.contadores {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.btnContador {
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btnContador:hover {
+  background-color: #0f172a;
+}
+
+.separador {
+  color: #64748B;
+}
+
+.total {
+  color: #c2cbd3;
+}
+
+.pendentes {
+  color: #FBBF24;
+}
+
+.concluidas {
+  color: #00e231;
+}
+
+.ativoTodas {
+  background-color: #0f172a;
+  border-color: #0665a5;
+  color: #e8ebe9;
+  font-weight: bold;
+}
+
+.ativoPendentes {
+  background-color: #0f172a;
+  border-color: #FBBF24;
+  color: #FBBF24;
+  font-weight: bold;
+}
+
+.ativoConcluidas {
+  background-color: #0f172a;
+  border-color: #00e231;
+  color: #00e231;
+  font-weight: bold;
+}
+
+
+
+
+
