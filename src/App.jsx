@@ -3,8 +3,8 @@ import { Routes, Route } from "react-router-dom";
 import Sidebar from "./components/sidebar";
 import RotaPrivada from "./components/RotaPrivada";
 import Dashboard from "./pages/dashboard";
-import Login from "./pages/login.jsx";
-import Sobre from "./pages/sobre.jsx";
+import Login from "./pages/login";
+import Sobre from "./pages/sobre";
 
 function App() {
   const [tarefas, setTarefas] = useState(() => {
@@ -12,8 +12,7 @@ function App() {
     return salvo ? JSON.parse(salvo) : [];
   });
 
-  const [filtroStatus, setFiltro
-    Status] = useState("todas");
+  const [filtroStatus, setFiltroStatus] = useState("todas");
 
   useEffect(() => {
     localStorage.setItem("taskflow-tarefas", JSON.stringify(tarefas));
