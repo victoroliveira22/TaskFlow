@@ -1,4 +1,4 @@
-import "./Sobre.css";
+import "./sobre.css";
 import React from 'react';
 function Sobre() {
   return (
