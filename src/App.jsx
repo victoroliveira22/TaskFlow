@@ -12,7 +12,8 @@ function App() {
     return salvo ? JSON.parse(salvo) : [];
   });
 
-  const [filtroStatus, setFiltroStatus] = useState("todas");
+  const [filtroStatus, setFiltro
+    Status] = useState("todas");
 
   useEffect(() => {
     localStorage.setItem("taskflow-tarefas", JSON.stringify(tarefas));
