@@ -4,7 +4,6 @@ import Header from "../components/Header";
 import ListaTarefas from "../components/ListaTarefas";
 import TesteAxios from "../components/testeAxios";
 import ModalTarefa from "../components/ModalTarefa";
-import styles from "./dashboard.module.css";
 
 const URL_API = "https://6a86e66570fbbd308f988242.mockapi.io/tarefas";
 
@@ -96,7 +95,7 @@ function Dashboard() {
   // PATCH — Mover tarefa de coluna
   async function moverTarefa(id, novaColuna) {
     try {
-      const { data: tarefaMovida } = await axios.patch(
+      const { data: tarefaMovida } = await axios.put(
         `${URL_API}/${id}`,
         {
           coluna: novaColuna,
@@ -137,11 +136,9 @@ function Dashboard() {
       <div className="container">
         <TesteAxios />
 
-        {carregando && (
-          <p className={styles.carregando}>Carregando tarefas...</p>
-        )}
+        {carregando && <p className="carregando">Carregando tarefas...</p>}
 
-        {erro && <p className={styles.erro}>{erro}</p>}
+        {erro && <p className="erro">{erro}</p>}
 
         {!carregando && (
           <ListaTarefas
