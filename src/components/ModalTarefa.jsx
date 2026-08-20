@@ -23,6 +23,8 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
       setPrioridade('media');
       setErroCep('');
     }
+    
+  
   }, [tarefa, aberto]);
 
   async function consultarCidade(cepDigitado) {
