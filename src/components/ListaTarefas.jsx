@@ -17,8 +17,18 @@ function ListaTarefas({
   const afazer = tarefasFiltradas.filter(
     (t) => t.coluna === "afazer" || !t.coluna
   );
-  const andamento = tarefasFiltradas.filter((t) => t.coluna === "andamento");
-  const concluidas = tarefasFiltradas.filter((t) => t.coluna === "concluida");
+
+  const andamento = tarefasFiltradas.filter(
+    (t) => t.coluna === "andamento" || t.coluna === "em-andamento"
+  );
+
+  // Captura tarefas se a coluna for "concluido", "concluida" ou se concluida === true
+  const concluidas = tarefasFiltradas.filter(
+    (t) =>
+      t.coluna === "concluido" ||
+      t.coluna === "concluida" ||
+      t.concluida === true
+  );
 
   return (
     <section id="lista-section">
@@ -100,7 +110,7 @@ function ListaTarefas({
                     </button>
                     <button
                       className="btnMover"
-                      onClick={() => onMover && onMover(t.id, "concluida")}
+                      onClick={() => onMover && onMover(t.id, "concluido")}
                     >
                       Mover →
                     </button>
@@ -118,7 +128,7 @@ function ListaTarefas({
             {onAbrirModalCriar && (
               <button
                 className="btnMover"
-                onClick={() => onAbrirModalCriar("concluida")}
+                onClick={() => onAbrirModalCriar("concluido")}
               >
                 +
               </button>

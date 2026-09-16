@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import Header from "../components/Header";
 import ListaTarefas from "../components/ListaTarefas";
 import TesteAxios from "../components/testeAxios";
 import ModalTarefa from "../components/ModalTarefa";
-
-const URL_API = "https://6a86e66570fbbd308f988242.mockapi.io/tarefas";
 
 function Dashboard() {
   const [tarefas, setTarefas] = useState([]);
@@ -17,13 +15,19 @@ function Dashboard() {
   const [tarefaEditando, setTarefaEditando] = useState(null);
   const [colunaAtiva, setColunaAtiva] = useState("afazer");
 
-  // GET — Carregar tarefas da API ao iniciar
+  function normalizarColuna(coluna) {
+    if (coluna === "concluida") return "concluido";
+    if (coluna === "em-andamento") return "andamento";
+    return coluna;
+  }
+
   useEffect(() => {
     async function carregarTarefas() {
       try {
         setCarregando(true);
         setErro("");
-        const resposta = await axios.get(URL_API);
+        // Uso direto da rota relativa via Axios
+        const resposta = await api.get("/tarefas");
         setTarefas(resposta.data);
       } catch (e) {
         setErro("Erro ao carregar tarefas. Verifique a conexão.");
@@ -36,33 +40,29 @@ function Dashboard() {
     carregarTarefas();
   }, []);
 
-  // POST / PUT — Criar ou editar tarefa
   async function salvarTarefa(dados) {
     try {
+      const colunaValida = normalizarColuna(dados.coluna || colunaAtiva);
+
       if (dados.id !== undefined) {
-        // EDITAR (PUT)
-        const { data: tarefaEditada } = await axios.put(
-          `${URL_API}/${dados.id}`,
-          {
-            texto: dados.texto,
-            prioridade: dados.prioridade,
-            cidade: dados.cidade,
-            coluna: dados.coluna,
-            concluida: dados.coluna === "concluida",
-          }
-        );
+        const { data: tarefaEditada } = await api.put(`/tarefas/${dados.id}`, {
+          texto: dados.texto,
+          prioridade: dados.prioridade,
+          cidade: dados.cidade || "",
+          coluna: colunaValida,
+          concluida: colunaValida === "concluido",
+        });
 
         setTarefas((tarefasAtuais) =>
           tarefasAtuais.map((t) => (t.id === dados.id ? tarefaEditada : t))
         );
       } else {
-        // CRIAR (POST)
-        const { data: novaTarefa } = await axios.post(URL_API, {
+        const { data: novaTarefa } = await api.post("/tarefas", {
           texto: dados.texto,
           prioridade: dados.prioridade,
-          cidade: dados.cidade,
-          coluna: colunaAtiva,
-          concluida: colunaAtiva === "concluida",
+          cidade: dados.cidade || "",
+          coluna: colunaValida,
+          concluida: colunaValida === "concluido",
         });
 
         setTarefas((tarefasAtuais) => [...tarefasAtuais, novaTarefa]);
@@ -74,7 +74,6 @@ function Dashboard() {
     }
   }
 
-  // DELETE — Remover tarefa
   async function deletarTarefa(id) {
     const confirmado = window.confirm(
       "Tem certeza que deseja deletar esta tarefa?"
@@ -82,7 +81,7 @@ function Dashboard() {
     if (!confirmado) return;
 
     try {
-      await axios.delete(`${URL_API}/${id}`);
+      await api.delete(`/tarefas/${id}`);
       setTarefas((tarefasAtuais) =>
         tarefasAtuais.filter((t) => t.id !== id)
       );
@@ -92,29 +91,37 @@ function Dashboard() {
     }
   }
 
-  // PATCH — Mover tarefa de coluna
   async function moverTarefa(id, novaColuna) {
     try {
-      const { data: tarefaMovida } = await axios.put(
-        `${URL_API}/${id}`,
-        {
-          coluna: novaColuna,
-          concluida: novaColuna === "concluida",
-        }
-      );
+      const tarefaAtual = tarefas.find((t) => t.id === id || t.id === Number(id));
+      if (!tarefaAtual) return;
+
+      const colunaValida = normalizarColuna(novaColuna);
+
+      const payload = {
+        texto: tarefaAtual.texto,
+        prioridade: tarefaAtual.prioridade,
+        cidade: tarefaAtual.cidade || "",
+        coluna: colunaValida,
+        concluida: colunaValida === "concluido",
+      };
+
+      const { data: tarefaMovida } = await api.put(`/tarefas/${id}`, payload);
 
       setTarefas((tarefasAtuais) =>
         tarefasAtuais.map((t) => (t.id === id ? tarefaMovida : t))
       );
     } catch (e) {
-      setErro("Erro ao mover tarefa. Tente novamente.");
-      console.error(e);
+      console.error("Detalhes do erro no servidor:", e.response?.data);
+      setErro(
+        e.response?.data?.erro || "Erro ao mover tarefa. Verifique o console."
+      );
     }
   }
 
   function abrirModalCriar(coluna) {
     setTarefaEditando(null);
-    setColunaAtiva(coluna);
+    setColunaAtiva(normalizarColuna(coluna));
     setModalAberto(true);
   }
 

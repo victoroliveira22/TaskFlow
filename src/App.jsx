@@ -1,17 +1,19 @@
-import { Routes, Route } from "react-router-dom";
-import Sidebar from "./components/sidebar";
-import RotaPrivada from "./components/RotaPrivada";
-import Dashboard from "./pages/dashboard";
-import Login from "./pages/login";
-import Sobre from "./pages/sobre";
+import { Routes, Route } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
+import { RotaPrivada } from './components/RotaPrivada';
+import Sidebar from './components/sidebar';
+import Login from './pages/login';
+import Dashboard from './pages/dashboard';
 
 function App() {
-  return (
-    <div className="app-layout">
-      <Sidebar />
+  const { token } = useAuth();
 
-      <main className="app-conteudo">
+  return (
+    <div style={{ display: 'flex' }}>
+      {token && <Sidebar />}
+      <div style={{ marginLeft: token ? '220px' : '0', width: '100%' }}>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route
             path="/"
             element={
@@ -20,10 +22,8 @@ function App() {
               </RotaPrivada>
             }
           />
-          <Route path="/login" element={<Login />} />
-          <Route path="/sobre" element={<Sobre />} />
         </Routes>
-      </main>
+      </div>
     </div>
   );
 }
