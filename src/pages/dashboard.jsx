@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import api from "../api";
 import Header from "../components/Header";
 import ListaTarefas from "../components/ListaTarefas";
-import TesteAxios from "../components/testeAxios";
 import ModalTarefa from "../components/ModalTarefa";
 
 function Dashboard() {
