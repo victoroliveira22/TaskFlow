@@ -15,7 +15,6 @@ function App() {
       <div style={{ marginLeft: token ? '220px' : '0', width: '100%' }}>
         <Routes>
           <Route path="/login" element={<Login />} />
-          
           <Route
             path="/"
             element={
@@ -24,8 +23,6 @@ function App() {
               </RotaPrivada>
             }
           />
-
-          {/* Rota da página Sobre */}
           <Route path="/sobre" element={<Sobre />} />
         </Routes>
       </div>
