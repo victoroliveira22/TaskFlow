@@ -21,7 +21,7 @@ function Sidebar() {
 
       <nav className={styles.nav}>
         
-          {!logado && (
+          {logado && (
           <NavLink to="/login" className={linkClass}>
             Login
           </NavLink>
