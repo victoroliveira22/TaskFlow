@@ -89,7 +89,7 @@
 //               onChange={(e) => setPrioridade(e.target.value)}
 //             >
 //               <option value="baixa">Baixa</option>
-//               <option value="media">Média</option>
+//               <optiaon value="media">Média</option>
 //               <option value="alta">Alta</option>
 //             </select>
 
