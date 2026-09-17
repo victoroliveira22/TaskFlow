@@ -25,7 +25,6 @@ function Dashboard() {
       try {
         setCarregando(true);
         setErro("");
-        // Uso direto da rota relativa via Axios
         const resposta = await api.get("/tarefas");
         setTarefas(resposta.data);
       } catch (e) {
