@@ -4,6 +4,7 @@ import { RotaPrivada } from './components/RotaPrivada';
 import Sidebar from './components/sidebar';
 import Login from './pages/login';
 import Dashboard from './pages/dashboard';
+import Sobre from './pages/sobre';
 
 function App() {
   const { token } = useAuth();
