@@ -3,12 +3,15 @@ import { useAuth } from "../contexts/AuthContext";
 import styles from "./sidebar.module.css";
 
 function Sidebar() {
-  const { logado, logout } = useAuth();
+  const auth = useAuth();
+  
+  const estaAutenticado = Boolean(auth?.logado || auth?.token || auth?.usuario);
   const navigate = useNavigate();
+
   const handleLogout = () => {
-    logout();
-    navigate('/login')
-  }
+    if (auth?.logout) auth.logout();
+    navigate("/login");
+  };
 
   const linkClass = ({ isActive }) =>
     isActive ? `${styles.link} ${styles.ativo}` : styles.link;
@@ -20,15 +23,13 @@ function Sidebar() {
       </div>
 
       <nav className={styles.nav}>
-        
-          {logado && (
+        {!estaAutenticado && (
           <NavLink to="/login" className={linkClass}>
             Login
           </NavLink>
-          )}
-        
+        )}
 
-        {logado && (
+        {estaAutenticado && (
           <NavLink to="/" className={linkClass}>
             Dashboard
           </NavLink>
@@ -39,13 +40,13 @@ function Sidebar() {
         </NavLink>
       </nav>
 
-      {logado && (
+      {estaAutenticado && (
         <button className={styles.btnLogout} onClick={handleLogout}>
           Sair
         </button>
       )}
     </aside>
   );
-} 
+}
 
 export default Sidebar;
