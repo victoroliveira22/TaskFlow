@@ -139,7 +139,7 @@ function Dashboard() {
       />
 
       <div className="container">
-        <TesteAxios />
+        
 
         {carregando && <p className="carregando">Carregando tarefas...</p>}
 
