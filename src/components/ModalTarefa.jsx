@@ -72,10 +72,9 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
     let cidadeFinal = cidade;
     const cepNumeros = cep.replace(/\D/g, '');
 
-    // Se o CEP tem 8 dígitos mas a cidade ainda não foi carregada, busca antes de salvar
     if (cepNumeros.length === 8 && !cidadeFinal) {
       cidadeFinal = await consultarCidade(cep);
-      if (!cidadeFinal) return; // Interrompe se o CEP for inválido
+      if (!cidadeFinal) return;
     }
 
     onSalvar({

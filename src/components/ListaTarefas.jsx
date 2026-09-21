@@ -22,7 +22,6 @@ function ListaTarefas({
     (t) => t.coluna === "andamento" || t.coluna === "em-andamento"
   );
 
-  // Captura tarefas se a coluna for "concluido", "concluida" ou se concluida === true
   const concluidas = tarefasFiltradas.filter(
     (t) =>
       t.coluna === "concluido" ||
@@ -33,7 +32,6 @@ function ListaTarefas({
   return (
     <section id="lista-section">
       <div className="kanban-container">
-        {/* Coluna 1: A Fazer */}
         <div className="coluna afazer">
           <div className="coluna-header">
             <h2>A Fazer</h2>
@@ -74,7 +72,6 @@ function ListaTarefas({
           </div>
         </div>
 
-        {/* Coluna 2: Em Andamento */}
         <div className="coluna andamento">
           <div className="coluna-header">
             <h2>Em Andamento</h2>
@@ -121,7 +118,6 @@ function ListaTarefas({
           </div>
         </div>
 
-        {/* Coluna 3: Concluidas */}
         <div className="coluna concluidas">
           <div className="coluna-header">
             <h2>Concluidas</h2>

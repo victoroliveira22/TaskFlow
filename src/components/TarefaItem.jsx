@@ -23,7 +23,6 @@ function TarefaItem({
   return (
     <div className={classeItem}>
       <div className={styles.conteudoTopo}>
-        {/* O checkbox de concluir foi removido daqui */}
 
         <span
           className={classeTexto}
