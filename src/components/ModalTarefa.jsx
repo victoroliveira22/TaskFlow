@@ -8,14 +8,13 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
   const [cidade, setCidade] = useState('');
   const [prioridade, setPrioridade] = useState('media');
   const [erroCep, setErroCep] = useState('');
-  const [carregandoCep, setCarregandoCep] = useState(false);
 
   useEffect(() => {
     if (tarefa) {
-      setTexto(tarefa.texto || '');
+      setTexto(tarefa.texto);
       setCidade(tarefa.cidade || '');
       setCep(tarefa.cep || '');
-      setPrioridade(tarefa.prioridade || 'media');
+      setPrioridade(tarefa.prioridade);
       setErroCep('');
     } else {
       setTexto('');
@@ -41,7 +40,6 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
       return;
     }
 
-    setCarregandoCep(true);
     try {
       const { data } = await axios.get(
         `https://viacep.com.br/ws/${cepApenasNumeros}/json/`
@@ -51,19 +49,22 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
         setCidade('');
         setErroCep('CEP não encontrado');
       } else {
-        setCidade(`${data.localidade}/${data.uf}`);
+        setCidade(data.localidade + '/' + data.uf);
         setErroCep('');
       }
     } catch (e) {
       setCidade('');
       setErroCep('Erro ao consultar CEP');
-    } finally {
-      setCarregandoCep(false);
     }
   }
 
   function handleSalvar() {
-    if (!texto.trim()) return;
+    if (texto.trim() === '') return;
+
+    if (cep.trim() !== '' && (erroCep || !cidade)) {
+      setErroCep('Informe um CEP válido antes de salvar');
+      return;
+    }
 
     onSalvar({
       id: tarefa?.id,
@@ -100,8 +101,7 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
           }}
         />
 
-        {carregandoCep && <p className={styles.cidade}>Buscando CEP...</p>}
-        {!carregandoCep && cidade && <p className={styles.cidade}>{cidade}</p>}
+        {cidade && <p className={styles.cidade}>{cidade}</p>}
         {erroCep && <p className={styles.erro}>{erroCep}</p>}
 
         <select value={prioridade} onChange={(e) => setPrioridade(e.target.value)}>
