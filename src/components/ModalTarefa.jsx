@@ -8,13 +8,14 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
   const [cidade, setCidade] = useState('');
   const [prioridade, setPrioridade] = useState('media');
   const [erroCep, setErroCep] = useState('');
+  const [carregandoCep, setCarregandoCep] = useState(false);
 
   useEffect(() => {
     if (tarefa) {
-      setTexto(tarefa.texto);
-      setCidade(tarefa.cidade || '');
+      setTexto(tarefa.texto || '');
+      setCidade(tarefa.cidade || tarefa.salvei0cep || '');
       setCep(tarefa.cep || '');
-      setPrioridade(tarefa.prioridade);
+      setPrioridade(tarefa.prioridade || 'media');
       setErroCep('');
     } else {
       setTexto('');
@@ -31,15 +32,16 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
 
     if (cepApenasNumeros.length === 0) {
       setCidade('');
-      return;
+      return '';
     }
 
     if (cepApenasNumeros.length !== 8) {
       setCidade('');
       setErroCep('O CEP deve conter 8 números');
-      return;
+      return '';
     }
 
+    setCarregandoCep(true);
     try {
       const { data } = await axios.get(
         `https://viacep.com.br/ws/${cepApenasNumeros}/json/`
@@ -48,29 +50,39 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
       if (data.erro) {
         setCidade('');
         setErroCep('CEP não encontrado');
+        return '';
       } else {
-        setCidade(data.localidade + '/' + data.uf);
+        const nomeCidade = `${data.localidade}/${data.uf}`;
+        setCidade(nomeCidade);
         setErroCep('');
+        return nomeCidade;
       }
     } catch (e) {
       setCidade('');
       setErroCep('Erro ao consultar CEP');
+      return '';
+    } finally {
+      setCarregandoCep(false);
     }
   }
 
-  function handleSalvar() {
-    if (texto.trim() === '') return;
+  async function handleSalvar() {
+    if (!texto.trim()) return;
 
-    if (cep.trim() !== '' && (erroCep || !cidade)) {
-      setErroCep('Informe um CEP válido antes de salvar');
-      return;
+    let cidadeFinal = cidade;
+    const cepNumeros = cep.replace(/\D/g, '');
+
+    // Se o CEP tem 8 dígitos mas a cidade ainda não foi carregada, busca antes de salvar
+    if (cepNumeros.length === 8 && !cidadeFinal) {
+      cidadeFinal = await consultarCidade(cep);
+      if (!cidadeFinal) return; // Interrompe se o CEP for inválido
     }
 
     onSalvar({
       id: tarefa?.id,
       texto,
       cep,
-      cidade,
+      cidade: cidadeFinal,
       prioridade,
       coluna: tarefa?.coluna || coluna,
     });
@@ -101,7 +113,8 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
           }}
         />
 
-        {cidade && <p className={styles.cidade}>{cidade}</p>}
+        {carregandoCep && <p className={styles.cidade}>Buscando CEP...</p>}
+        {!carregandoCep && cidade && <p className={styles.cidade}>{cidade}</p>}
         {erroCep && <p className={styles.erro}>{erroCep}</p>}
 
         <select value={prioridade} onChange={(e) => setPrioridade(e.target.value)}>
@@ -112,7 +125,9 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
 
         <div className={styles.botoes}>
           <button onClick={onFechar}>Cancelar</button>
-          <button onClick={handleSalvar}>Salvar</button>
+          <button onClick={handleSalvar} disabled={carregandoCep}>
+            {carregandoCep ? 'Buscando...' : 'Salvar'}
+          </button>
         </div>
       </div>
     </div>

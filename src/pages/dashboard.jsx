@@ -56,18 +56,12 @@ function Dashboard() {
         const { data: tarefaEditada } = await api.put(`/tarefas/${dados.id}`, payload);
 
         setTarefas((tarefasAtuais) =>
-          tarefasAtuais.map((t) =>
-            t.id === dados.id ? { ...payload, ...tarefaEditada } : t
-          )
+          tarefasAtuais.map((t) => (t.id === dados.id ? tarefaEditada : t))
         );
       } else {
         const { data: novaTarefa } = await api.post("/tarefas", payload);
 
-        // Mescla o payload com a resposta da API para garantir que CEP e Cidade permaneçam no estado
-        setTarefas((tarefasAtuais) => [
-          ...tarefasAtuais,
-          { ...payload, ...novaTarefa },
-        ]);
+        setTarefas((tarefasAtuais) => [...tarefasAtuais, novaTarefa]);
       }
       setModalAberto(false);
     } catch (e) {
@@ -104,8 +98,6 @@ function Dashboard() {
         texto: tarefaAtual.texto,
         prioridade: tarefaAtual.prioridade,
         cidade: tarefaAtual.cidade || "",
-        cep: tarefaAtual.cep || "",
-        salvei0cep: tarefaAtual.salvei0cep || tarefaAtual.cidade || "",
         coluna: colunaValida,
         concluida: colunaValida === "concluido",
       };
@@ -113,9 +105,7 @@ function Dashboard() {
       const { data: tarefaMovida } = await api.put(`/tarefas/${id}`, payload);
 
       setTarefas((tarefasAtuais) =>
-        tarefasAtuais.map((t) =>
-          t.id === id ? { ...tarefaAtual, ...payload, ...tarefaMovida } : t
-        )
+        tarefasAtuais.map((t) => (t.id === id ? tarefaMovida : t))
       );
     } catch (e) {
       console.error("Detalhes do erro no servidor:", e.response?.data);
