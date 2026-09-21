@@ -12,10 +12,10 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
 
   useEffect(() => {
     if (tarefa) {
-      setTexto(tarefa.texto);
-      setCidade(tarefa.cidade || tarefa.salvei0cep || '');
+      setTexto(tarefa.texto || '');
+      setCidade(tarefa.cidade || '');
       setCep(tarefa.cep || '');
-      setPrioridade(tarefa.prioridade);
+      setPrioridade(tarefa.prioridade || 'media');
       setErroCep('');
     } else {
       setTexto('');
@@ -51,7 +51,7 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
         setCidade('');
         setErroCep('CEP não encontrado');
       } else {
-        setCidade(data.localidade + '/' + data.uf);
+        setCidade(`${data.localidade}/${data.uf}`);
         setErroCep('');
       }
     } catch (e) {
@@ -63,13 +63,7 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
   }
 
   function handleSalvar() {
-    if (texto.trim() === '') return;
-    if (carregandoCep) return;
-
-    if (cep.trim() !== '' && (erroCep || !cidade)) {
-      setErroCep('Informe um CEP válido antes de salvar');
-      return;
-    }
+    if (!texto.trim()) return;
 
     onSalvar({
       id: tarefa?.id,
@@ -118,9 +112,7 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
 
         <div className={styles.botoes}>
           <button onClick={onFechar}>Cancelar</button>
-          <button onClick={handleSalvar} disabled={carregandoCep}>
-            {carregandoCep ? 'Buscando...' : 'Salvar'}
-          </button>
+          <button onClick={handleSalvar}>Salvar</button>
         </div>
       </div>
     </div>

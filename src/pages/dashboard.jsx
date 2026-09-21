@@ -47,7 +47,6 @@ function Dashboard() {
         prioridade: dados.prioridade,
         cidade: dados.cidade || "",
         cep: dados.cep || "",
-        salvei0cep: dados.cidade || dados.cep || "",
         coluna: colunaValida,
         concluida: colunaValida === "concluido",
       };
@@ -65,8 +64,8 @@ function Dashboard() {
       }
       setModalAberto(false);
     } catch (e) {
-      setErro("Erro ao salvar tarefa. Tente novamente.");
-      console.error(e);
+      console.error("Erro no servidor ao salvar:", e.response?.data || e.message);
+      setErro("Erro ao salvar tarefa. Verifique o console.");
     }
   }
 
@@ -97,9 +96,8 @@ function Dashboard() {
       const payload = {
         texto: tarefaAtual.texto,
         prioridade: tarefaAtual.prioridade,
-        cidade: tarefaAtual.cidade || tarefaAtual.salvei0cep || "",
+        cidade: tarefaAtual.cidade || "",
         cep: tarefaAtual.cep || "",
-        salvei0cep: tarefaAtual.salvei0cep || tarefaAtual.cidade || "",
         coluna: colunaValida,
         concluida: colunaValida === "concluido",
       };
