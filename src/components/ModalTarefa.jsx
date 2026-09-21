@@ -8,13 +8,14 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
   const [cidade, setCidade] = useState('');
   const [prioridade, setPrioridade] = useState('media');
   const [erroCep, setErroCep] = useState('');
+  const [carregandoCep, setCarregandoCep] = useState(false);
 
   useEffect(() => {
     if (tarefa) {
       setTexto(tarefa.texto);
-      setCidade(tarefa.cidade || '');
+      setCidade(tarefa.cidade || tarefa.salvei0cep || '');
+      setCep(tarefa.cep || '');
       setPrioridade(tarefa.prioridade);
-      setCep('');
       setErroCep('');
     } else {
       setTexto('');
@@ -23,8 +24,6 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
       setPrioridade('media');
       setErroCep('');
     }
-    
-  
   }, [tarefa, aberto]);
 
   async function consultarCidade(cepDigitado) {
@@ -42,6 +41,7 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
       return;
     }
 
+    setCarregandoCep(true);
     try {
       const { data } = await axios.get(
         `https://viacep.com.br/ws/${cepApenasNumeros}/json/`
@@ -57,11 +57,14 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
     } catch (e) {
       setCidade('');
       setErroCep('Erro ao consultar CEP');
+    } finally {
+      setCarregandoCep(false);
     }
   }
 
   function handleSalvar() {
     if (texto.trim() === '') return;
+    if (carregandoCep) return;
 
     if (cep.trim() !== '' && (erroCep || !cidade)) {
       setErroCep('Informe um CEP válido antes de salvar');
@@ -71,6 +74,7 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
     onSalvar({
       id: tarefa?.id,
       texto,
+      cep,
       cidade,
       prioridade,
       coluna: tarefa?.coluna || coluna,
@@ -102,7 +106,8 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
           }}
         />
 
-        {cidade && <p className={styles.cidade}>{cidade}</p>}
+        {carregandoCep && <p className={styles.cidade}>Buscando CEP...</p>}
+        {!carregandoCep && cidade && <p className={styles.cidade}>{cidade}</p>}
         {erroCep && <p className={styles.erro}>{erroCep}</p>}
 
         <select value={prioridade} onChange={(e) => setPrioridade(e.target.value)}>
@@ -113,7 +118,9 @@ function ModalTarefa({ aberto, onFechar, onSalvar, tarefa = null, coluna = 'afaz
 
         <div className={styles.botoes}>
           <button onClick={onFechar}>Cancelar</button>
-          <button onClick={handleSalvar}>Salvar</button>
+          <button onClick={handleSalvar} disabled={carregandoCep}>
+            {carregandoCep ? 'Buscando...' : 'Salvar'}
+          </button>
         </div>
       </div>
     </div>

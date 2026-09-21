@@ -42,26 +42,24 @@ function Dashboard() {
     try {
       const colunaValida = normalizarColuna(dados.coluna || colunaAtiva);
 
+      const payload = {
+        texto: dados.texto,
+        prioridade: dados.prioridade,
+        cidade: dados.cidade || "",
+        cep: dados.cep || "",
+        salvei0cep: dados.cidade || dados.cep || "",
+        coluna: colunaValida,
+        concluida: colunaValida === "concluido",
+      };
+
       if (dados.id !== undefined) {
-        const { data: tarefaEditada } = await api.put(`/tarefas/${dados.id}`, {
-          texto: dados.texto,
-          prioridade: dados.prioridade,
-          cidade: dados.cidade || "",
-          coluna: colunaValida,
-          concluida: colunaValida === "concluido",
-        });
+        const { data: tarefaEditada } = await api.put(`/tarefas/${dados.id}`, payload);
 
         setTarefas((tarefasAtuais) =>
           tarefasAtuais.map((t) => (t.id === dados.id ? tarefaEditada : t))
         );
       } else {
-        const { data: novaTarefa } = await api.post("/tarefas", {
-          texto: dados.texto,
-          prioridade: dados.prioridade,
-          cidade: dados.cidade || "",
-          coluna: colunaValida,
-          concluida: colunaValida === "concluido",
-        });
+        const { data: novaTarefa } = await api.post("/tarefas", payload);
 
         setTarefas((tarefasAtuais) => [...tarefasAtuais, novaTarefa]);
       }
@@ -99,7 +97,9 @@ function Dashboard() {
       const payload = {
         texto: tarefaAtual.texto,
         prioridade: tarefaAtual.prioridade,
-        cidade: tarefaAtual.cidade || "",
+        cidade: tarefaAtual.cidade || tarefaAtual.salvei0cep || "",
+        cep: tarefaAtual.cep || "",
+        salvei0cep: tarefaAtual.salvei0cep || tarefaAtual.cidade || "",
         coluna: colunaValida,
         concluida: colunaValida === "concluido",
       };
@@ -139,8 +139,6 @@ function Dashboard() {
       />
 
       <div className="container">
-        
-
         {carregando && <p className="carregando">Carregando tarefas...</p>}
 
         {erro && <p className="erro">{erro}</p>}
