@@ -3,54 +3,70 @@ import styles from "./TarefaItem.module.css";
 function TarefaItem({
   texto,
   concluida,
-  prioridade = "media",
+  idprioridade,
+  prioridade,
+  prioridades = [],
+  usuarioId,
+  usuarios = [],
+  projetoId,
+  projetos = [],
   onDeletar,
   onEditar,
-  salvei0cep,
 }) {
-  const classeItem = `${styles.tarefa} ${concluida ? styles.concluida : ""} ${
-    styles[prioridade] || ""
-  }`;
+  const valorPrio = idprioridade ?? prioridade;
 
-  const classeTexto = `${styles.textoTarefa} ${
-    concluida ? styles["texto-tarefa"] : ""
-  }`;
+  const prioEncontrada = prioridades.find((p) => {
+    if (typeof p === "object" && p !== null) {
+      const pId = p.id ?? p.idprioridade ?? p.id_prioridade;
+      return Number(pId) === Number(valorPrio);
+    }
+    return String(p).toLowerCase() === String(valorPrio).toLowerCase();
+  });
 
-  const classePrioridade = `${styles["badge-prioridade"]} ${
-    styles["badge-" + prioridade] || ""
-  }`;
+  const rotuloPrioridade = prioEncontrada
+    ? (typeof prioEncontrada === "object" ? prioEncontrada.nome : prioEncontrada)
+    : (typeof valorPrio === "string" && valorPrio.trim() !== "" ? valorPrio : "media");
+
+  const prioridadeNome = String(rotuloPrioridade)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  const usuarioObj = usuarios.find((u) => u.id === Number(usuarioId));
+  const projetoObj = projetos.find((p) => p.id === Number(projetoId));
 
   return (
-    <div className={classeItem}>
+    <div className={`${styles.tarefa} ${concluida ? styles.concluida : ""} ${styles[prioridadeNome] || ""}`}>
       <div className={styles.conteudoTopo}>
-
         <span
-          className={classeTexto}
+          className={styles.textoTarefa}
           onDoubleClick={(e) => {
             e.stopPropagation();
             onEditar && onEditar();
           }}
-          title="Clique duplo para editar"
         >
           {texto}
         </span>
 
-        <span className={classePrioridade}>{prioridade}</span>
+        <span className={`${styles["badge-prioridade"]} ${styles["badge-" + prioridadeNome] || ""}`}>
+          {rotuloPrioridade}
+        </span>
 
         <button
           className={styles.btnDeletar}
           onClick={(e) => {
             e.stopPropagation();
-            onDeletar();
+            onDeletar && onDeletar();
           }}
         >
           ✕
         </button>
       </div>
 
-      {salvei0cep && (
+      {(usuarioObj || projetoObj) && (
         <div className={styles.enderecoContainer}>
-          {salvei0cep}
+          {usuarioObj && <div><strong>Resp:</strong> {usuarioObj.nome}</div>}
+          {projetoObj && <div><strong>Projeto:</strong> {projetoObj.nome}</div>}
         </div>
       )}
     </div>

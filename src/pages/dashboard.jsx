@@ -6,6 +6,9 @@ import ModalTarefa from "../components/ModalTarefa";
 
 function Dashboard() {
   const [tarefas, setTarefas] = useState([]);
+  const [prioridades, setPrioridades] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
+  const [projetos, setProjetos] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("todas");
@@ -15,59 +18,78 @@ function Dashboard() {
   const [colunaAtiva, setColunaAtiva] = useState("afazer");
 
   function normalizarColuna(coluna) {
-    if (coluna === "concluida") return "concluido";
-    if (coluna === "em-andamento") return "andamento";
-    return coluna;
+    if (coluna === "concluida" || coluna === "concluido") return "concluido";
+    if (coluna === "andamento" || coluna === "em-andamento") return "andamento";
+    return "afazer";
+  }
+
+  async function carregarDados() {
+    try {
+      setCarregando(true);
+      setErro("");
+
+      const [respPrioridades, respTarefas, respUsuarios, respProjetos] =
+        await Promise.all([
+          api.get("/prioridades"),
+          api.get("/tarefas"),
+          api.get("/usuarios"),
+          api.get("/projetos"),
+        ]);
+
+      setPrioridades(
+        Array.isArray(respPrioridades.data)
+          ? respPrioridades.data
+          : respPrioridades.data.prioridades || respPrioridades.data.data || []
+      );
+
+      setTarefas(
+        Array.isArray(respTarefas.data)
+          ? respTarefas.data
+          : respTarefas.data.tarefas || respTarefas.data.data || []
+      );
+
+      setUsuarios(
+        Array.isArray(respUsuarios.data)
+          ? respUsuarios.data
+          : respUsuarios.data.usuarios || respUsuarios.data.data || []
+      );
+
+      setProjetos(
+        Array.isArray(respProjetos.data)
+          ? respProjetos.data
+          : respProjetos.data.projetos || respProjetos.data.data || []
+      );
+    } catch (e) {
+      setErro("Erro ao carregar dados do servidor. Verifique a conexão.");
+      console.error(e);
+    } finally {
+      setCarregando(false);
+    }
   }
 
   useEffect(() => {
-    async function carregarTarefas() {
-      try {
-        setCarregando(true);
-        setErro("");
-        const resposta = await api.get("/tarefas");
-        setTarefas(resposta.data);
-      } catch (e) {
-        setErro("Erro ao carregar tarefas. Verifique a conexão.");
-        console.error(e);
-      } finally {
-        setCarregando(false);
-      }
-    }
-
-    carregarTarefas();
+    carregarDados();
   }, []);
 
   async function salvarTarefa(dados) {
-    try {
-      const colunaValida = normalizarColuna(dados.coluna || colunaAtiva);
+    const colunaValida = normalizarColuna(dados.coluna || colunaAtiva);
 
-      const payload = {
-        texto: dados.texto,
-        prioridade: dados.prioridade,
-        cidade: dados.cidade || "",
-        cep: dados.cep || "",
-        salvei0cep: dados.cidade || dados.cep || "",
-        coluna: colunaValida,
-        concluida: colunaValida === "concluido",
-      };
+    const payload = {
+      texto: dados.texto,
+      coluna: colunaValida,
+      idprioridade: dados.idprioridade,
+      prioridade: dados.idprioridade,
+      usuario_id: dados.usuario_id,
+      projeto_id: dados.projeto_id,
+    };
 
-      if (dados.id !== undefined) {
-        const { data: tarefaEditada } = await api.put(`/tarefas/${dados.id}`, payload);
-
-        setTarefas((tarefasAtuais) =>
-          tarefasAtuais.map((t) => (t.id === dados.id ? tarefaEditada : t))
-        );
-      } else {
-        const { data: novaTarefa } = await api.post("/tarefas", payload);
-
-        setTarefas((tarefasAtuais) => [...tarefasAtuais, novaTarefa]);
-      }
-      setModalAberto(false);
-    } catch (e) {
-      setErro("Erro ao salvar tarefa. Tente novamente.");
-      console.error(e);
+    if (dados.id) {
+      await api.put(`/tarefas/${dados.id}`, payload);
+    } else {
+      await api.post("/tarefas", payload);
     }
+
+    await carregarDados();
   }
 
   async function deletarTarefa(id) {
@@ -89,28 +111,29 @@ function Dashboard() {
 
   async function moverTarefa(id, novaColuna) {
     try {
-      const tarefaAtual = tarefas.find((t) => t.id === id || t.id === Number(id));
+      const tarefaAtual = tarefas.find(
+        (t) => t.id === id || t.id === Number(id)
+      );
       if (!tarefaAtual) return;
 
       const colunaValida = normalizarColuna(novaColuna);
 
       const payload = {
         texto: tarefaAtual.texto,
-        prioridade: tarefaAtual.prioridade,
-        cidade: tarefaAtual.cidade || "",
         coluna: colunaValida,
-        concluida: colunaValida === "concluido",
+        idprioridade: tarefaAtual.idprioridade,
+        usuario_id: tarefaAtual.usuario_id,
+        projeto_id: tarefaAtual.projeto_id,
       };
 
-      const { data: tarefaMovida } = await api.put(`/tarefas/${id}`, payload);
-
-      setTarefas((tarefasAtuais) =>
-        tarefasAtuais.map((t) => (t.id === id ? tarefaMovida : t))
-      );
+      await api.put(`/tarefas/${id}`, payload);
+      await carregarDados();
     } catch (e) {
       console.error("Detalhes do erro no servidor:", e.response?.data);
       setErro(
-        e.response?.data?.erro || "Erro ao mover tarefa. Verifique o console."
+        e.response?.data?.erros?.[0] ||
+        e.response?.data?.erro?.mensagem ||
+          "Erro ao mover tarefa. Verifique o console."
       );
     }
   }
@@ -144,6 +167,9 @@ function Dashboard() {
         {!carregando && (
           <ListaTarefas
             tarefas={tarefas}
+            prioridades={prioridades}
+            usuarios={usuarios}
+            projetos={projetos}
             filtroStatus={filtroStatus}
             onDeletar={deletarTarefa}
             onMover={moverTarefa}
@@ -160,6 +186,9 @@ function Dashboard() {
           onSalvar={salvarTarefa}
           tarefa={tarefaEditando}
           coluna={colunaAtiva}
+          prioridades={prioridades}
+          usuarios={usuarios}
+          projetos={projetos}
         />
       )}
     </>

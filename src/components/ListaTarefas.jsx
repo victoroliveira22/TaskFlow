@@ -2,32 +2,33 @@ import TarefaItem from "./TarefaItem.jsx";
 
 function ListaTarefas({
   tarefas = [],
+  prioridades = [],
+  usuarios = [],
+  projetos = [],
   filtroStatus = "todas",
   onDeletar,
   onMover,
   onEditar,
   onAbrirModalCriar,
 }) {
+  const eConcluida = (t) =>
+    t.coluna === "concluido" || t.coluna === "concluida" || t.concluida === true;
+
   const tarefasFiltradas = tarefas.filter((t) => {
-    if (filtroStatus === "pendentes") return !t.concluida;
-    if (filtroStatus === "concluidas") return t.concluida;
+    if (filtroStatus === "pendentes") return !eConcluida(t);
+    if (filtroStatus === "concluidas") return eConcluida(t);
     return true;
   });
 
   const afazer = tarefasFiltradas.filter(
-    (t) => t.coluna === "afazer" || !t.coluna
+    (t) => (t.coluna === "afazer" || !t.coluna) && !eConcluida(t)
   );
 
   const andamento = tarefasFiltradas.filter(
-    (t) => t.coluna === "andamento" || t.coluna === "em-andamento"
+    (t) => (t.coluna === "andamento" || t.coluna === "em-andamento") && !eConcluida(t)
   );
 
-  const concluidas = tarefasFiltradas.filter(
-    (t) =>
-      t.coluna === "concluido" ||
-      t.coluna === "concluida" ||
-      t.concluida === true
-  );
+  const concluidas = tarefasFiltradas.filter((t) => eConcluida(t));
 
   return (
     <section id="lista-section">
@@ -52,9 +53,13 @@ function ListaTarefas({
                 <div key={t.id} className="card-wrapper">
                   <TarefaItem
                     texto={t.texto}
-                    prioridade={t.prioridade}
-                    concluida={t.concluida}
-                    salvei0cep={t.salvei0cep || t.cep || t.cidade}
+                    idprioridade={t.idprioridade || t.prioridade}
+                    prioridades={prioridades}
+                    usuarioId={t.usuario_id || t.usuarioId}
+                    usuarios={usuarios}
+                    projetoId={t.projeto_id || t.projetoId}
+                    projetos={projetos}
+                    concluida={false}
                     onDeletar={() => onDeletar(t.id)}
                     onEditar={() => onEditar && onEditar(t)}
                   />
@@ -92,9 +97,13 @@ function ListaTarefas({
                 <div key={t.id} className="card-wrapper">
                   <TarefaItem
                     texto={t.texto}
-                    prioridade={t.prioridade}
-                    concluida={t.concluida}
-                    salvei0cep={t.salvei0cep || t.cep || t.cidade}
+                    idprioridade={t.idprioridade || t.prioridade}
+                    prioridades={prioridades}
+                    usuarioId={t.usuario_id || t.usuarioId}
+                    usuarios={usuarios}
+                    projetoId={t.projeto_id || t.projetoId}
+                    projetos={projetos}
+                    concluida={false}
                     onDeletar={() => onDeletar(t.id)}
                     onEditar={() => onEditar && onEditar(t)}
                   />
@@ -138,9 +147,13 @@ function ListaTarefas({
                 <div key={t.id} className="card-wrapper">
                   <TarefaItem
                     texto={t.texto}
-                    prioridade={t.prioridade}
-                    concluida={t.concluida}
-                    salvei0cep={t.salvei0cep || t.cep || t.cidade}
+                    idprioridade={t.idprioridade || t.prioridade}
+                    prioridades={prioridades}
+                    usuarioId={t.usuario_id || t.usuarioId}
+                    usuarios={usuarios}
+                    projetoId={t.projeto_id || t.projetoId}
+                    projetos={projetos}
+                    concluida={true}
                     onDeletar={() => onDeletar(t.id)}
                     onEditar={() => onEditar && onEditar(t)}
                   />

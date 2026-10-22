@@ -8,7 +8,12 @@ function Header({
   subtitulo = "Gerencie suas tarefas",
 }) {
   const total = tarefas.length;
-  const concluidas = tarefas.filter((t) => t.concluida).length;
+  
+  // Considera concluída se a coluna for 'concluido' ou 'concluida', ou se o booleano for true
+  const concluidas = tarefas.filter(
+    (t) => t.coluna === "concluido" || t.coluna === "concluida" || t.concluida === true
+  ).length;
+  
   const pendentes = total - concluidas;
 
   return (
@@ -56,4 +61,4 @@ function Header({
   );
 }
 
-export default Header;     
+export default Header;
